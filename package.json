@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "lint": "tslint -c tslint.json src/**/*.ts -p tsconfig.json",
+    "lint:fix": "npm run lint -- --fix"
   },
   "repository": {
     "type": "git",
@@ -18,8 +20,11 @@
   "homepage": "https://github.com/wix-incubator/istanbul-ignore-legacy#readme",
   "devDependencies": {
     "@types/jest": "^24.0.11",
+    "@wix/tslint-config-wixstores": "^1.0.23",
     "jest": "^24.5.0",
     "ts-jest": "^24.0.0",
+    "tslint": "^5.14.0",
+    "tslint-sonarts": "^1.9.0",
     "typescript": "^3.3.4000"
   },
   "jest": {

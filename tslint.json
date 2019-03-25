@@ -1,0 +1,6 @@
+{
+  "extends": [
+    "@wix/tslint-config-wixstores",
+    "tslint-sonarts"
+  ]
+}
