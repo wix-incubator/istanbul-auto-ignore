@@ -8,15 +8,17 @@ interface Location {
   end: Point;
 }
 
+export interface Node {
+  name: string;
+  decl: Location;
+  loc: Location;
+}
+
 export interface CoverageFinalJSON {
   [key: string]: {
     path: string;
     fnMap: {
-      [key: string]: {
-        name: string;
-        decl: Location;
-        loc: Location;
-      };
+      [key: string]: Node;
     };
     f: {
       [key: string]: number;
