@@ -1,6 +1,5 @@
-import { runCLI } from "@jest/core";
-import { Config } from "@jest/types";
 import { TempDir } from "./TempDir";
+import { runTool } from "./testHelpers";
 
 describe("", () => {
   let tempDir;
@@ -11,18 +10,7 @@ describe("", () => {
     tempDir.destroy();
   });
 
-  it("should pass", async () => {
-    const file = `
-            module.exports = function a() {
-                console.log(2);
-                if (false) {
-                    console.log(1);
-            
-                }
-            };
-        `;
-
-    const testFile = `
+  const callOnlyA = `
             const a = require('./codeFile.js');
             
             
@@ -35,19 +23,50 @@ describe("", () => {
   
         `;
 
-    tempDir.setup({
-      "codeFile.js": file,
-      "codeFile.spec.js": testFile
-    });
+  it("when the second function is uncovered", async () => {
+    const file = `
+            module.exports = function a() {
+                
+            };
 
-    const { results } = await runCLI(
-      {
-        collectCoverage: true,
-        silent: true,
-        outputFile: "1.txt"
-      } as Config.Argv,
-      [tempDir.getPath()]
-    );
-    expect(Object.keys(results.coverageMap.data)[0]).toContain("codeFile.js");
+            function b() {
+            }
+        `;
+
+    const result = await runTool(tempDir, file, callOnlyA);
+    const expectedCodeFile = `
+            module.exports = function a() {
+                
+            };
+
+/* istanbul ignore next */
+            function b() {
+            }
+        `;
+
+    expect(result).toEqual(expectedCodeFile);
+  });
+
+  it("when the second function is uncovered", async () => {
+    const file = `
+            function c() {
+            }
+            
+            module.exports = function a() {
+                
+            };`;
+
+    const result = await runTool(tempDir, file, callOnlyA);
+
+    const expectedCodeFile = `
+/* istanbul ignore next */
+            function c() {
+            }
+            
+            module.exports = function a() {
+                
+            };`;
+
+    expect(result).toEqual(expectedCodeFile);
   });
 });

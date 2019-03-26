@@ -24,9 +24,9 @@ export class TempDir {
     this.dir = null;
   }
 
-  public getPath(): string {
+  public getPath(fileName?: string): string {
     this.checkDir();
-    return this.dir.name;
+    return path.join(...[this.dir.name, fileName].filter(Boolean));
   }
 
   public setup(files: { [key: string]: string }): void {
