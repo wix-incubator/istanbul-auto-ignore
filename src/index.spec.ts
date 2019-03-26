@@ -156,4 +156,28 @@ describe("", () => {
 
     expect(result).toEqual(expectedCodeFile);
   });
+
+  it("when uncovered class method", async () => {
+    const file = `
+            class Nice {
+              method() {
+              }
+            }
+
+            module.exports = function a(){};
+            `;
+
+    const result = await runTool(tempDir, file, callOnlyA);
+
+    const expectedCodeFile = `
+            class Nice {
+              /* istanbul ignore next */method() {
+              }
+            }
+
+            module.exports = function a(){};
+            `;
+
+    expect(result).toEqual(expectedCodeFile);
+  });
 });
