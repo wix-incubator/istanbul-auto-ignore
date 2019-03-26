@@ -27,16 +27,17 @@ export function run(coveragePath) {
   const files = Object.keys(coverage);
 
   files.forEach(file => {
-    const fileContent = fs.readFileSync(file, "utf8");
+    let fileContent = fs.readFileSync(file, "utf8");
+    let addedLinesCount = 0;
     const fnMap = coverage[file].fnMap;
     Object.entries(fnMap).forEach(([key, fn]) => {
-      // @ts-ignore
       const f = coverage[file].f[key];
       if (f === 0) {
-        const newContent = addComment(fileContent, fn.decl.start.line);
-
-        fs.writeFileSync(file, newContent, "utf8");
+        const line = fn.decl.start.line + addedLinesCount;
+        fileContent = addComment(fileContent, line);
+        addedLinesCount++;
       }
     });
+    fs.writeFileSync(file, fileContent, "utf8");
   });
 }

@@ -7,6 +7,7 @@ interface Location {
   start: Point;
   end: Point;
 }
+
 export interface CoverageFinalJSON {
   [key: string]: {
     path: string;
@@ -16,6 +17,9 @@ export interface CoverageFinalJSON {
         decl: Location;
         loc: Location;
       };
+    };
+    f: {
+      [key: string]: number;
     };
   };
 }

@@ -69,4 +69,34 @@ describe("", () => {
 
     expect(result).toEqual(expectedCodeFile);
   });
+
+  it("when two functions are uncovered", async () => {
+    const file = `
+            function b() {
+            }
+            
+            function c() {
+            }
+            
+            module.exports = function a() {
+                
+            };`;
+
+    const result = await runTool(tempDir, file, callOnlyA);
+
+    const expectedCodeFile = `
+/* istanbul ignore next */
+            function b() {
+            }
+            
+/* istanbul ignore next */
+            function c() {
+            }
+            
+            module.exports = function a() {
+                
+            };`;
+
+    expect(result).toEqual(expectedCodeFile);
+  });
 });
