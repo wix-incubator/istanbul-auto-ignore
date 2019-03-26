@@ -1,4 +1,6 @@
 /.idea
+/package-lock.json
+/node_modules
+/dist
+/coverage
 .DS_store
-package-lock.json
-node_modules

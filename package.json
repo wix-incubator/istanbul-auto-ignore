@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "bin": {
+    "istanbul-ignore-legacy": "dist/cli.js"
+  },
   "scripts": {
     "test": "jest",
+    "build": "tsc",
     "lint": "tslint -c tslint.json src/**/*.ts -p tsconfig.json",
     "lint:fix": "npm run lint -- --fix"
   },
@@ -35,6 +39,24 @@
     "typescript": "^3.3.4000"
   },
   "jest": {
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/src/.*\\.spec\\.ts$"
+    ],
+    "testRegex": "/src/.*\\.spec\\.ts$",
+    "coverageReporters": [
+      "html",
+      "json"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "statements": 100,
+        "branches": 100,
+        "functions": 100,
+        "lines": 100
+      }
+    },
     "transform": {
       "\\.(ts|tsx)$": "ts-jest"
     }

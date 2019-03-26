@@ -1,3 +1,4 @@
+/* tslint:disable:no-big-function */
 import { TempDir } from "./TempDir";
 import { runTool } from "./testHelpers";
 
@@ -138,7 +139,7 @@ describe("", () => {
             }
 
             module.exports = function a(){
-              b(() => null, () => null, () => null);
+              b(() => null, () => null);
             };
             `;
 
@@ -150,7 +151,7 @@ describe("", () => {
             }
 
             module.exports = function a(){
-              b(() => null, /* istanbul ignore next */() => null, /* istanbul ignore next */() => null);
+              b(() => null,/* istanbul ignore next */ () => null);
             };
             `;
 
@@ -171,7 +172,56 @@ describe("", () => {
 
     const expectedCodeFile = `
             class Nice {
-              /* istanbul ignore next */method() {
+/* istanbul ignore next */
+              method() {
+              }
+            }
+
+            module.exports = function a(){};
+            `;
+
+    expect(result).toEqual(expectedCodeFile);
+  });
+
+  it("when uncovered arrow function as object property", async () => {
+    const file = `
+            const Nice = {
+              method: () => {
+              }
+            }
+
+            module.exports = function a(){};
+            `;
+
+    const result = await runTool(tempDir, file, callOnlyA);
+
+    const expectedCodeFile = `
+            const Nice = {
+              method:/* istanbul ignore next */ () => {
+              }
+            }
+
+            module.exports = function a(){};
+            `;
+
+    expect(result).toEqual(expectedCodeFile);
+  });
+
+  it("when uncovered anonymous function as object property", async () => {
+    const file = `
+            const Nice = {
+              method: function() {
+              }
+            }
+
+            module.exports = function a(){};
+            `;
+
+    const result = await runTool(tempDir, file, callOnlyA);
+
+    const expectedCodeFile = `
+            const Nice = {
+              method:/* istanbul ignore next */ function() {
               }
             }
 
