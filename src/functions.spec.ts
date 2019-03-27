@@ -101,6 +101,7 @@ describe("Functions", () => {
     expect(result).toEqual(expectedCodeFile);
   });
 
+  // TODO: find place where variable declaration begins
   it.skip("when two functions are uncovered", async () => {
     const file = `
             function b() {
