@@ -107,8 +107,7 @@ describe("Branches", () => {
       const result = await runTool(tempDir, file, callOnlyA);
       const expectedCodeFile = `
             module.exports = function a() {
-/* istanbul ignore else */
-                return true ? 1 : 0;
+                return/* istanbul ignore next */ true ? 1 : 0;
             };
         `;
 
@@ -125,8 +124,7 @@ describe("Branches", () => {
       const result = await runTool(tempDir, file, callOnlyA);
       const expectedCodeFile = `
             module.exports = function a() {
-/* istanbul ignore if */
-                return false ? 1 : 0;
+                return/* istanbul ignore next */ false ? 1 : 0;
             };
         `;
 

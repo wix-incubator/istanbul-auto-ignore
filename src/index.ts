@@ -59,10 +59,19 @@ function addIgnoreCommentToBranches(textChanges, branchesLocations, b) {
     .filter(isBranchNotCovered)
     .forEach(([branchKey, node]: [string, BranchNode]) => {
       const uncoveredBranchType = getUncoveredBranch(branchKey);
-      textChanges.insertLine(
-        createComment(uncoveredBranchType),
-        node.loc.start.line
-      );
+
+      if (node.type === "cond-expr") {
+        textChanges.insert(
+          createComment("next"),
+          node.loc.start.line,
+          node.loc.start.column
+        );
+      } else {
+        textChanges.insertLine(
+          createComment(uncoveredBranchType),
+          node.loc.start.line
+        );
+      }
     });
 }
 
