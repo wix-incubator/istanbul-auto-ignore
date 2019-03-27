@@ -25,11 +25,11 @@ describe("Combinations", () => {
         `;
 
   describe("Branches and Functions", () => {
-    xit("when only if is covered", async () => {
+    it("when only if is covered", async () => {
       const file = `
             module.exports = function a() {
                 function b() {
-                
+
                 }
                 if (true) {
                 
@@ -42,7 +42,7 @@ describe("Combinations", () => {
             module.exports = function a() {
 /* istanbul ignore next */
                 function b() {
-                 
+
                 }
 /* istanbul ignore else */
                 if (true) {
