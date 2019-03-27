@@ -69,23 +69,30 @@ describe('Branches', () => {
       expect(result).toEqual(expectedCodeFile);
     });
 
-    it('when is not called', async () => {
+    it('TS - when is not called', async () => {
       const file = `
-            module.exports = function a() {};
+            export default function a() {};
             
-            function b() {
+            export function b() {
                 if (true) {
                 }
             }
             
         `;
 
-      const result = await runTool(tempDir, file, callOnlyA);
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => {
+      it('', () => {A()})
+      })`,
+        true
+      );
       const expectedCodeFile = `
-            module.exports = function a() {};
+            export default function a() {};
             
 /* istanbul ignore next */
-            function b() {
+            export function b() {
                 if (true) {
                 }
             }

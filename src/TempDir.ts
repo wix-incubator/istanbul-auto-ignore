@@ -1,13 +1,13 @@
 import fs from 'fs';
 import path from 'path';
-import tmp from 'tmp';
 import rimraf from 'rimraf';
 
 export class TempDir {
-  private dir: { name: string; removeCallback: Function };
+  private readonly dir: string;
 
   constructor() {
-    this.dir = tmp.dirSync();
+    this.dir = `/Users/erans/projects/istanbul-ignore-legacy/${new Date().toISOString()}`;
+    fs.mkdirSync(this.dir);
     this.setup({
       'package.json': JSON.stringify({
         name: 'test',
@@ -20,15 +20,15 @@ export class TempDir {
 
   public destroy(): void {
     rimraf.sync(this.getPath());
-    this.dir = null;
   }
 
   public getPath(fileName?: string): string {
-    return path.join(...[this.dir.name, fileName].filter(Boolean));
+    return path.join(...[this.dir, fileName].filter(Boolean));
   }
 
   public setup(files: { [key: string]: string }): void {
     Object.keys(files).forEach(fileName => {
+      path.join(this.getPath(), fileName); //?
       fs.writeFileSync(
         path.join(this.getPath(), fileName),
         files[fileName],

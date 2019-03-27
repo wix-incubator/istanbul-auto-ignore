@@ -6,23 +6,33 @@ import { run } from './index';
 export async function runTool(
   tempDir: TempDir,
   codeFile: string,
-  testFile: string
+  testFile: string,
+  ts = false
 ): Promise<string> {
+  const extention = ts ? 'ts' : 'js';
   tempDir.setup({
-    'codeFile.js': codeFile,
-    'codeFile.spec.js': testFile
+    [`codeFile.${extention}`]: codeFile,
+    [`codeFile.spec.${extention}`]: testFile,
+    'package.json': JSON.stringify({
+      name: 'temp-package',
+      jest: {
+        collectCoverage: true,
+        transform: {
+          '^.+\\.ts$': 'ts-jest'
+        }
+      }
+    })
   });
 
   await runCLI(
     {
-      collectCoverage: true,
       silent: true,
+      cache: false,
       outputFile: '1.txt'
     } as Config.Argv,
     [tempDir.getPath()]
   );
 
   run(tempDir.getPath('coverage/coverage-final.json'));
-
-  return tempDir.readFile('codeFile.js');
+  return tempDir.readFile(`codeFile.${extention}`);
 }
