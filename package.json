@@ -12,6 +12,11 @@
     "lint": "tslint -c tslint.json src/**/*.ts -p tsconfig.json",
     "lint:fix": "npm run lint -- --fix"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wix-incubator/istanbul-ignore-legacy.git"
@@ -28,6 +33,7 @@
     "@types/jest": "^24.0.11",
     "@wix/tslint-config-wixstores": "^1.0.23",
     "babel-jest": "^24.5.0",
+    "husky": "^1.3.1",
     "jest": "^24.5.0",
     "jest-cli": "^24.5.0",
     "rimraf": "^2.6.3",

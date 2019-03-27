@@ -1,7 +1,16 @@
 import fs from "fs";
-import { CoverageFinalJSON, Node } from "./types";
+import {
+  BranchNode,
+  CommentType,
+  CoverageFinalJSON,
+  FunctionNode
+} from "./types";
 
 const COMMENT = "/* istanbul ignore next */";
+
+function createComment(type: CommentType) {
+  return `/* istanbul ignore ${type} */`;
+}
 
 function insert(to: string, what: string, where: number) {
   return to.slice(0, where) + what + to.slice(where, to.length);
@@ -19,9 +28,13 @@ function getIndex(where: string, line: number, column: number): number {
   );
 }
 
-function addNewLineComment(fileContent, line) {
+function addNewLineComment(
+  fileContent,
+  line,
+  commentType: CommentType = "next"
+) {
   const newLineIndex = getIndex(fileContent, line, 1);
-  return insert(fileContent, `${COMMENT}\n`, newLineIndex);
+  return insert(fileContent, `${createComment(commentType)}\n`, newLineIndex);
 }
 
 function addInlineComment(fileContent, line, column) {
@@ -49,37 +62,95 @@ export function run(coveragePath) {
 
   codeFilesPaths.forEach(filePath => {
     let fileContent = fs.readFileSync(filePath, "utf8");
-    let addedLinesCount = 0;
-    let addedCharsToCurrentLine = 0;
-    let prevLine = 0;
-    const functionDelarationsLocations = coverage[filePath].fnMap;
+    fileContent = addIgnoreCommentToFunctions(
+      fileContent,
+      coverage[filePath].fnMap,
+      coverage[filePath].f
+    );
 
-    const isFunctionNotCovered = ([functionKey]: [string, Node]): boolean => {
-      return coverage[filePath].f[functionKey] === 0;
-    };
+    fileContent = addIgnoreCommentToBranches(
+      fileContent,
+      coverage[filePath].branchMap,
+      coverage[filePath].b
+    );
 
-    Object.entries(functionDelarationsLocations)
-      .filter(isFunctionNotCovered)
-      .forEach(([, node]: [string, Node]) => {
-        const line = node.decl.start.line + addedLinesCount;
-        if (prevLine !== line) {
-          addedCharsToCurrentLine = 0;
-        }
-        const column = node.decl.start.column + addedCharsToCurrentLine;
-
-        if (
-          node.name.startsWith("(anonymous_") &&
-          !beginsOnStartLine(fileContent, line, column)
-        ) {
-          fileContent = addInlineComment(fileContent, line, column);
-          addedCharsToCurrentLine += COMMENT.length;
-        } else {
-          fileContent = addNewLineComment(fileContent, line);
-          addedLinesCount++;
-        }
-
-        prevLine = line;
-      });
     fs.writeFileSync(filePath, fileContent, "utf8");
   });
 }
+
+function addIgnoreCommentToBranches(fileContent, branchesLocations, b): string {
+  let addedLinesCount = 0;
+
+  const isBranchNotCovered = ([branchKey]: [string, BranchNode]): boolean => {
+    const [ifBranch, elseBranch] = b[branchKey];
+    return (
+      (ifBranch === 0 || elseBranch === 0) &&
+      !(ifBranch === 0 && elseBranch === 0)
+    );
+  };
+
+  const getUncoveredBranch = (branchKey: string): "if" | "else" => {
+    const [ifBranch] = b[branchKey];
+    if (ifBranch === 0) {
+      return "if";
+    }
+
+    return "else";
+  };
+
+  Object.entries(branchesLocations)
+    .filter(isBranchNotCovered)
+    .forEach(([branchKey, node]: [string, BranchNode]) => {
+      const uncoveredBranchType = getUncoveredBranch(branchKey);
+      const line = node.loc.start.line + addedLinesCount;
+      fileContent = addNewLineComment(fileContent, line, uncoveredBranchType);
+      addedLinesCount++;
+    });
+
+  return fileContent;
+}
+
+function addIgnoreCommentToFunctions(
+  fileContent,
+  functionDeclarationsLocations,
+  f
+): string {
+  let addedLinesCount = 0;
+  let addedCharsToCurrentLine = 0;
+  let prevLine = 0;
+
+  const isFunctionNotCovered = ([functionKey]: [
+    string,
+    FunctionNode
+  ]): boolean => {
+    return f[functionKey] === 0;
+  };
+
+  Object.entries(functionDeclarationsLocations)
+    .filter(isFunctionNotCovered)
+    .forEach(([, node]: [string, FunctionNode]) => {
+      const line = node.decl.start.line + addedLinesCount;
+      if (prevLine !== line) {
+        addedCharsToCurrentLine = 0;
+      }
+      const column = node.decl.start.column + addedCharsToCurrentLine;
+
+      if (
+        node.name.startsWith("(anonymous_") &&
+        !beginsOnStartLine(fileContent, line, column)
+      ) {
+        fileContent = addInlineComment(fileContent, line, column);
+        addedCharsToCurrentLine += COMMENT.length;
+      } else {
+        fileContent = addNewLineComment(fileContent, line);
+        addedLinesCount++;
+      }
+
+      prevLine = line;
+    });
+
+  return fileContent;
+}
+
+//cond-expr - next
+//if - depends on use [if0, else0]

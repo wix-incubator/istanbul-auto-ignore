@@ -2,7 +2,7 @@
 import { TempDir } from "./TempDir";
 import { runTool } from "./testHelpers";
 
-describe("", () => {
+describe("Functions", () => {
   let tempDir;
   beforeEach(() => {
     tempDir = new TempDir();
@@ -139,7 +139,7 @@ describe("", () => {
             }
 
             module.exports = function a(){
-              b(() => null, () => null);
+              b(() => null, () => null, () => null);
             };
             `;
 
@@ -151,7 +151,7 @@ describe("", () => {
             }
 
             module.exports = function a(){
-              b(() => null,/* istanbul ignore next */ () => null);
+              b(() => null,/* istanbul ignore next */ () => null,/* istanbul ignore next */ () => null);
             };
             `;
 
