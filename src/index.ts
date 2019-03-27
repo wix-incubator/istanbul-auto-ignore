@@ -1,11 +1,11 @@
-import fs from "fs";
+import fs from 'fs';
 import {
   BranchNode,
   CommentType,
   CoverageFinalJSON,
   FunctionNode
-} from "./types";
-import { TextChanges } from "./TextChanges";
+} from './types';
+import { TextChanges } from './TextChanges';
 
 function createComment(type: CommentType) {
   return `/* istanbul ignore ${type} */`;
@@ -13,13 +13,13 @@ function createComment(type: CommentType) {
 
 export function run(coveragePath) {
   const coverage: CoverageFinalJSON = JSON.parse(
-    fs.readFileSync(coveragePath, "utf8")
+    fs.readFileSync(coveragePath, 'utf8')
   );
   const codeFilesPaths = Object.keys(coverage);
 
   codeFilesPaths
     .map(filePath => {
-      const fileContent = fs.readFileSync(filePath, "utf8");
+      const fileContent = fs.readFileSync(filePath, 'utf8');
       return { textChanges: new TextChanges(fileContent), filePath };
     })
     .map(({ textChanges, filePath }) => {
@@ -37,7 +37,7 @@ export function run(coveragePath) {
       return { textChanges, filePath };
     })
     .forEach(({ textChanges, filePath }) => {
-      fs.writeFileSync(filePath, textChanges.getText(), "utf8");
+      fs.writeFileSync(filePath, textChanges.getText(), 'utf8');
     });
 }
 
@@ -50,9 +50,9 @@ function addIgnoreCommentToBranches(textChanges, branchesLocations, b) {
     );
   };
 
-  const getUncoveredBranch = (branchKey: string): "if" | "else" => {
+  const getUncoveredBranch = (branchKey: string): 'if' | 'else' => {
     const [ifBranch] = b[branchKey];
-    return ifBranch === 0 ? "if" : "else";
+    return ifBranch === 0 ? 'if' : 'else';
   };
 
   Object.entries(branchesLocations)
@@ -60,9 +60,9 @@ function addIgnoreCommentToBranches(textChanges, branchesLocations, b) {
     .forEach(([branchKey, node]: [string, BranchNode]) => {
       const uncoveredBranchType = getUncoveredBranch(branchKey);
 
-      if (node.type === "cond-expr") {
+      if (node.type === 'cond-expr') {
         textChanges.insert(
-          createComment("next"),
+          createComment('next'),
           node.loc.start.line,
           node.loc.start.column
         );
@@ -94,12 +94,12 @@ function addIgnoreCommentToFunctions(
       const column = node.decl.start.column;
 
       if (
-        node.name.startsWith("(anonymous_") &&
+        node.name.startsWith('(anonymous_') &&
         !textChanges.beginsOnStartLine(line, column)
       ) {
-        textChanges.insert(createComment("next"), line, column);
+        textChanges.insert(createComment('next'), line, column);
       } else {
-        textChanges.insertLine(createComment("next"), line);
+        textChanges.insertLine(createComment('next'), line);
       }
     });
 }

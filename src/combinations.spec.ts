@@ -1,8 +1,8 @@
 /* tslint:disable:no-big-function */
-import { TempDir } from "./TempDir";
-import { runTool } from "./testHelpers";
+import { TempDir } from './TempDir';
+import { runTool } from './testHelpers';
 
-describe("Combinations", () => {
+describe('Combinations', () => {
   let tempDir;
   beforeEach(() => {
     tempDir = new TempDir();
@@ -24,8 +24,8 @@ describe("Combinations", () => {
   
         `;
 
-  describe("Branches and Functions", () => {
-    it("when only if is covered", async () => {
+  describe('Branches and Functions', () => {
+    it('when only if is covered', async () => {
       const file = `
             module.exports = function a() {
                 function b() {

@@ -1,7 +1,7 @@
-import fs from "fs";
-import path from "path";
-import tmp from "tmp";
-import rimraf from "rimraf";
+import fs from 'fs';
+import path from 'path';
+import tmp from 'tmp';
+import rimraf from 'rimraf';
 
 export class TempDir {
   private dir: { name: string; removeCallback: Function };
@@ -9,8 +9,8 @@ export class TempDir {
   constructor() {
     this.dir = tmp.dirSync();
     this.setup({
-      "package.json": JSON.stringify({
-        name: "test",
+      'package.json': JSON.stringify({
+        name: 'test',
         jest: {
           collectCoverage: true
         }
@@ -32,12 +32,12 @@ export class TempDir {
       fs.writeFileSync(
         path.join(this.getPath(), fileName),
         files[fileName],
-        "utf8"
+        'utf8'
       );
     });
   }
 
   public readFile(fileName: string): string {
-    return fs.readFileSync(path.join(this.getPath(), fileName), "utf8");
+    return fs.readFileSync(path.join(this.getPath(), fileName), 'utf8');
   }
 }

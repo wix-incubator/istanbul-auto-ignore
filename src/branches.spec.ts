@@ -1,8 +1,8 @@
 /* tslint:disable:no-big-function */
-import { TempDir } from "./TempDir";
-import { runTool } from "./testHelpers";
+import { TempDir } from './TempDir';
+import { runTool } from './testHelpers';
 
-describe("Branches", () => {
+describe('Branches', () => {
   let tempDir;
   beforeEach(() => {
     tempDir = new TempDir();
@@ -24,8 +24,8 @@ describe("Branches", () => {
   
         `;
 
-  describe("if", () => {
-    it("when only if is covered", async () => {
+  describe('if', () => {
+    it('when only if is covered', async () => {
       const file = `
             module.exports = function a() {
                 if (true) {
@@ -47,7 +47,7 @@ describe("Branches", () => {
       expect(result).toEqual(expectedCodeFile);
     });
 
-    it("when only else is covered", async () => {
+    it('when only else is covered', async () => {
       const file = `
             module.exports = function a() {
                 if (false) {
@@ -69,7 +69,7 @@ describe("Branches", () => {
       expect(result).toEqual(expectedCodeFile);
     });
 
-    it("when is not called", async () => {
+    it('when is not called', async () => {
       const file = `
             module.exports = function a() {};
             
@@ -96,8 +96,8 @@ describe("Branches", () => {
     });
   });
 
-  describe("ternary", () => {
-    it("when only if is covered", async () => {
+  describe('ternary', () => {
+    it('when only if is covered', async () => {
       const file = `
             module.exports = function a() {
                 return true ? 1 : 0;
@@ -114,7 +114,7 @@ describe("Branches", () => {
       expect(result).toEqual(expectedCodeFile);
     });
 
-    it("when only else is covered", async () => {
+    it('when only else is covered', async () => {
       const file = `
             module.exports = function a() {
                 return false ? 1 : 0;
@@ -131,7 +131,7 @@ describe("Branches", () => {
       expect(result).toEqual(expectedCodeFile);
     });
 
-    it("when is not called", async () => {
+    it('when is not called', async () => {
       const file = `
             module.exports = function a() {};
             

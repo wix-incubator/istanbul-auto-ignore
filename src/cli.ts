@@ -1,4 +1,4 @@
-import { run } from "./index";
-import path from "path";
+import { run } from './index';
+import path from 'path';
 
-run(path.join(process.cwd(), "coverage/coverage-final.json"));
+run(path.join(process.cwd(), 'coverage/coverage-final.json'));

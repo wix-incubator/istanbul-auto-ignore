@@ -39,4 +39,4 @@ export interface CoverageFinalJSON {
   };
 }
 
-type CommentType = "next" | "if" | "else";
+type CommentType = 'next' | 'if' | 'else';

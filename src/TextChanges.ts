@@ -3,7 +3,7 @@ export class TextChanges {
   private readonly textLines: string[];
 
   constructor(private readonly text: string) {
-    this.textLines = this.text.split("\n");
+    this.textLines = this.text.split('\n');
   }
 
   public insert(str: string, line: number, column: number): void {

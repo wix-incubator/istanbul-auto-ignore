@@ -1,8 +1,8 @@
 /* tslint:disable:no-big-function */
-import { TempDir } from "./TempDir";
-import { runTool } from "./testHelpers";
+import { TempDir } from './TempDir';
+import { runTool } from './testHelpers';
 
-describe("Functions", () => {
+describe('Functions', () => {
   let tempDir;
   beforeEach(() => {
     tempDir = new TempDir();
@@ -24,7 +24,7 @@ describe("Functions", () => {
   
         `;
 
-  it("when the second function is uncovered", async () => {
+  it('when the second function is uncovered', async () => {
     const file = `
             module.exports = function a() {
                 
@@ -48,7 +48,7 @@ describe("Functions", () => {
     expect(result).toEqual(expectedCodeFile);
   });
 
-  it("when the second function is uncovered", async () => {
+  it('when the second function is uncovered', async () => {
     const file = `
             function c() {
             }
@@ -71,7 +71,7 @@ describe("Functions", () => {
     expect(result).toEqual(expectedCodeFile);
   });
 
-  it("when two functions are uncovered", async () => {
+  it('when two functions are uncovered', async () => {
     const file = `
             function b() {
             }
@@ -102,7 +102,7 @@ describe("Functions", () => {
   });
 
   // TODO: find place where variable declaration begins
-  it.skip("when two functions are uncovered", async () => {
+  it.skip('when two functions are uncovered', async () => {
     const file = `
             function b() {
             }
@@ -133,7 +133,7 @@ describe("Functions", () => {
     expect(result).toEqual(expectedCodeFile);
   });
 
-  it("when arrow functions are uncovered inside function call", async () => {
+  it('when arrow functions are uncovered inside function call', async () => {
     const file = `
             function b(one, two) {
                 one();
@@ -159,7 +159,7 @@ describe("Functions", () => {
     expect(result).toEqual(expectedCodeFile);
   });
 
-  it("when uncovered class method", async () => {
+  it('when uncovered class method', async () => {
     const file = `
             class Nice {
               method() {
@@ -184,7 +184,7 @@ describe("Functions", () => {
     expect(result).toEqual(expectedCodeFile);
   });
 
-  it("when uncovered arrow function as object property", async () => {
+  it('when uncovered arrow function as object property', async () => {
     const file = `
             const Nice = {
               method: () => {
@@ -208,7 +208,7 @@ describe("Functions", () => {
     expect(result).toEqual(expectedCodeFile);
   });
 
-  it("when uncovered anonymous function as object property", async () => {
+  it('when uncovered anonymous function as object property', async () => {
     const file = `
             const Nice = {
               method: function() {
