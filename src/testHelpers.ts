@@ -7,21 +7,13 @@ export async function runTool(
   tempDir: TempDir,
   codeFile: string,
   testFile: string,
-  ts = false
+  ts = false,
+  tsx = false
 ): Promise<string> {
-  const extention = ts ? 'ts' : 'js';
+  const extention = ts ? (tsx ? 'tsx' : 'ts') : 'js';
   tempDir.setup({
     [`codeFile.${extention}`]: codeFile,
-    [`codeFile.spec.${extention}`]: testFile,
-    'package.json': JSON.stringify({
-      name: 'temp-package',
-      jest: {
-        collectCoverage: true,
-        transform: {
-          '^.+\\.ts$': 'ts-jest'
-        }
-      }
-    })
+    [`codeFile.spec.${extention}`]: testFile
   });
 
   await runCLI(

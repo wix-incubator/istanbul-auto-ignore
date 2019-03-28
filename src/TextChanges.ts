@@ -10,6 +10,10 @@ export class TextChanges {
     this.insertedChars.push({ str, index: this.getIndex(line, column) });
   }
 
+  public insertAtPosition(str: string, pos: number): void {
+    this.insertedChars.push({ str, index: pos });
+  }
+
   public insertLine(str: string, line: number): void {
     this.insert(`${str}\n`, line, 1);
   }

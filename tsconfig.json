@@ -12,5 +12,6 @@
     "importHelpers": true,
     "noUnusedLocals": true,
     "strictBindCallApply": true
-  }
+  },
+  "include": ["src/**/*.ts"]
 }

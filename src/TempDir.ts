@@ -1,18 +1,34 @@
 import fs from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
+import uuid from 'uuid/v4';
 
 export class TempDir {
   private readonly dir: string;
 
   constructor() {
-    this.dir = `/Users/erans/projects/istanbul-ignore-legacy/${new Date().toISOString()}`;
+    const tmpDest = path.join(__dirname, 'tmp');
+    if (!fs.existsSync(tmpDest)) {
+      fs.mkdirSync(tmpDest);
+    }
+
+    this.dir = path.join(tmpDest, uuid());
     fs.mkdirSync(this.dir);
     this.setup({
       'package.json': JSON.stringify({
-        name: 'test',
+        name: 'temp-package',
         jest: {
-          collectCoverage: true
+          collectCoverage: true,
+          transform: {
+            '\\.(ts|tsx)$': 'ts-jest'
+          },
+          testRegex: '\\.spec\\.(tsx?|jsx?)$',
+          moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
+        }
+      }),
+      'tsconfig.json': JSON.stringify({
+        compilerOptions: {
+          jsx: 'react'
         }
       })
     });
@@ -28,7 +44,7 @@ export class TempDir {
 
   public setup(files: { [key: string]: string }): void {
     Object.keys(files).forEach(fileName => {
-      path.join(this.getPath(), fileName); //?
+      path.join(this.getPath(), fileName);
       fs.writeFileSync(
         path.join(this.getPath(), fileName),
         files[fileName],

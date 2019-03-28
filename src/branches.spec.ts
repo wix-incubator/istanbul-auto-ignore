@@ -162,4 +162,129 @@ describe('Branches', () => {
       expect(result).toEqual(expectedCodeFile);
     });
   });
+
+  describe('Typescript', () => {
+    it('TS - when ternary if', async () => {
+      const file = `
+      export default function a() {
+            return         true    ? 343241 : 4324324322
+            };
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true
+      );
+      const expectedCodeFile = `
+      export default function a() {
+            return/* istanbul ignore next */         true    ? 343241 : 4324324322
+            };
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('TS - when ternary if with tsx', async () => {
+      const file = `
+import * as React from 'react';
+      export default function a() {
+            const myA = new A();
+            myA.render();
+            };
+            
+      class A {         
+            public render() {
+            return true ? null : <div></div>;
+      }
+  }
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+import * as React from 'react';
+      export default function a() {
+            const myA = new A();
+            myA.render();
+            };
+            
+      class A {         
+            public render() {
+            return/* istanbul ignore next */ true ? null : <div></div>;
+      }
+  }
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('TS - when ternary if with function call inside', async () => {
+      const file = `
+import * as React from 'react';
+      export default function a() {
+            const myA = new A();
+            myA.render();
+            };
+            
+      class A {         
+            public render() {
+            return true ? console.log() : <div></div>;
+      }
+  }
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+import * as React from 'react';
+      export default function a() {
+            const myA = new A();
+            myA.render();
+            };
+            
+      class A {         
+            public render() {
+            return/* istanbul ignore next */ true ? console.log() : <div></div>;
+      }
+  }
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('default arg', async () => {
+      const file = `
+        export default function a({
+          cssPath
+        }: {cssPath?: string[]} = {}) {}
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `/* istanbul ignore next */
+        export default function a({
+          cssPath
+        }: {cssPath?: string[]} = {}) {}
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+  });
 });
