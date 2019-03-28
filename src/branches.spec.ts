@@ -114,7 +114,7 @@ describe('Branches', () => {
       const result = await runTool(tempDir, file, callOnlyA);
       const expectedCodeFile = `
             module.exports = function a() {
-                return/* istanbul ignore next */ true ? 1 : 0;
+                return /* istanbul ignore next */true ? 1 : 0;
             };
         `;
 
@@ -131,7 +131,7 @@ describe('Branches', () => {
       const result = await runTool(tempDir, file, callOnlyA);
       const expectedCodeFile = `
             module.exports = function a() {
-                return/* istanbul ignore next */ false ? 1 : 0;
+                return /* istanbul ignore next */false ? 1 : 0;
             };
         `;
 
@@ -179,7 +179,7 @@ describe('Branches', () => {
       );
       const expectedCodeFile = `
       export default function a() {
-            return/* istanbul ignore next */         true    ? 343241 : 4324324322
+            return /* istanbul ignore next */        true    ? 343241 : 4324324322
             };
       `;
 
@@ -217,7 +217,7 @@ import * as React from 'react';
             
       class A {         
             public render() {
-            return/* istanbul ignore next */ true ? null : <div></div>;
+            return /* istanbul ignore next */true ? null : <div></div>;
       }
   }
       `;
@@ -256,10 +256,29 @@ import * as React from 'react';
             
       class A {         
             public render() {
-            return/* istanbul ignore next */ true ? console.log() : <div></div>;
+            return /* istanbul ignore next */true ? console.log() : <div></div>;
       }
   }
       `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('TS - when ternary if with function call inside', async () => {
+      const file = `
+      export default () => 
+      console.log(console.log(console.log(1)), true ? {} : {})`;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+      export default () => 
+      console.log(console.log(console.log(1)), /* istanbul ignore next */true ? {} : {})`;
 
       expect(result).toEqual(expectedCodeFile);
     });
@@ -278,8 +297,8 @@ import * as React from 'react';
         true,
         true
       );
-      const expectedCodeFile = `/* istanbul ignore next */
-        export default function a({
+      const expectedCodeFile = `
+/* istanbul ignore next */        export default function a({
           cssPath
         }: {cssPath?: string[]} = {}) {}
       `;

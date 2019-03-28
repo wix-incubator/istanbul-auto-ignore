@@ -63,7 +63,6 @@ function lineAndColToPos(
 }
 
 function findNodePathAtPosition(
-  fileContent: string,
   sourceFile: ts.SourceFile,
   position: number
 ): ts.Node[] {
@@ -75,21 +74,8 @@ function findNodePathAtPosition(
     try {
       parents.push(child);
       ts.forEachChild(child, forEachChild(parents));
-      if (child.getChildCount() === 0) {
-        if (child.pos === position) {
-          r = parents;
-          return;
-        } else {
-          let spacesAfterPos = 0;
-          while (/\s/.test(fileContent[child.pos + spacesAfterPos])) {
-            spacesAfterPos++;
-          }
-          spacesAfterPos--;
-          if (child.pos + spacesAfterPos === position) {
-            r = parents;
-            return;
-          }
-        }
+      if (child.getChildCount() === 0 && position <= child.pos) {
+        r = parents;
       }
     } catch (e) {
       /**/
@@ -130,7 +116,7 @@ function addIgnoreCommentToBranches(
       const uncoveredBranchType = getUncoveredBranch(branchKey);
 
       if (node.type === 'cond-expr') {
-        const a = ts
+        const sourceFile = ts
           .createProgram([filePath], {
             noResolve: true,
             target: ts.ScriptTarget.Latest,
@@ -141,13 +127,12 @@ function addIgnoreCommentToBranches(
           })
           .getSourceFile(filePath);
 
-        if (a) {
+        if (sourceFile) {
           const { line, column } = node.loc.start;
           const nodePosition = lineAndColToPos(fileContent, line, column);
-          // getFocusPath(a, 0, ts)//?
 
           const uncoveredNodePath =
-            findNodePathAtPosition(fileContent, a, nodePosition) || [];
+            findNodePathAtPosition(sourceFile, nodePosition) || [];
           uncoveredNodePath.reverse();
 
           const statementNodeKinds = [
@@ -159,7 +144,7 @@ function addIgnoreCommentToBranches(
             statementNode => statementNodeKinds.includes(statementNode.kind)
           );
 
-          /* istanbul ignore else: in the future we won't need this protection*/
+          /* istanbul ignore else: in the future we won't need this protection */
           if (conditionalExpresionNode) {
             textChanges.insertAtPosition(
               createComment('next'),

@@ -11,11 +11,11 @@ export class TextChanges {
   }
 
   public insertAtPosition(str: string, pos: number): void {
-    this.insertedChars.push({ str, index: pos });
+    this.insertedChars.push({ str, index: pos + 1 });
   }
 
   public insertLine(str: string, line: number): void {
-    this.insert(`${str}\n`, line, 1);
+    this.insert(`${str}\n`, line, 0);
   }
 
   public getText(): string {
@@ -33,14 +33,14 @@ export class TextChanges {
     return changedText;
   }
 
-  private getIndex(line, column): number {
+  private getIndex(line: number, column: number): number {
     const textLinesCount = this.textLines.length;
     const charsInLines = this.textLines
       .map((l, index) => l.length + (index === textLinesCount - 1 ? 0 : 1))
       .slice(0, line - 1)
       .reduce((sum, length) => sum + length, 0);
 
-    return charsInLines + (column - 1);
+    return charsInLines + column;
   }
 
   public beginsOnStartLine(line: number, column: number): boolean {

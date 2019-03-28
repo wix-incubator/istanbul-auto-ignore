@@ -152,7 +152,7 @@ describe('Functions', () => {
             }
 
             module.exports = function a(){
-              b(() => null,/* istanbul ignore next */ () => null,/* istanbul ignore next */ () => null);
+              b(() => null, /* istanbul ignore next */() => null, /* istanbul ignore next */() => null);
             };
             `;
 
@@ -198,7 +198,7 @@ describe('Functions', () => {
 
     const expectedCodeFile = `
             const Nice = {
-              method:/* istanbul ignore next */ () => {
+              method: /* istanbul ignore next */() => {
               }
             }
 
@@ -222,7 +222,7 @@ describe('Functions', () => {
 
     const expectedCodeFile = `
             const Nice = {
-              method:/* istanbul ignore next */ function() {
+              method: /* istanbul ignore next */function() {
               }
             }
 
