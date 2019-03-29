@@ -139,6 +139,13 @@ function addIgnoreCommentToBranches(
             findNodePathAtPosition(sourceFile, nodePosition) || [];
           uncoveredNodePath.reverse();
 
+          if (
+            node.type !== 'binary-expr' &&
+            uncoveredNodePath[0].kind === ts.SyntaxKind.BinaryExpression
+          ) {
+            uncoveredNodePath.shift();
+          }
+
           const statementNodeKinds = [
             ts.SyntaxKind.ConditionalExpression,
             ts.SyntaxKind.FunctionDeclaration,
@@ -156,7 +163,9 @@ function addIgnoreCommentToBranches(
           if (
             conditionalExpresionNode &&
             conditionalExpresionNode.kind === ts.SyntaxKind.BinaryExpression &&
-            uncoveredBranchType === 'else'
+            uncoveredBranchType === 'else' &&
+            (conditionalExpresionNode as ts.BinaryExpression).operatorToken
+              .kind === ts.SyntaxKind.BarBarToken
           ) {
             conditionalExpresionNode = (conditionalExpresionNode as ts.BinaryExpression)
               .right;

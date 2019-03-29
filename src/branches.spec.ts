@@ -280,6 +280,25 @@ import * as React from 'react';
       expect(result).toEqual(expectedCodeFile);
     });
 
+    it('TS - when ternary if with binary expression inside', async () => {
+      const file = `
+      export default () => 
+        true ? 1 + 2 : undefined;`;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+      export default () => 
+        /* istanbul ignore next */true ? 1 + 2 : undefined;`;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
     it('TS - default inside variable', async () => {
       const file = `
         export default () => {
