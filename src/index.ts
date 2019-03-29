@@ -113,11 +113,11 @@ function addIgnoreCommentToBranches(
     .filter(isBranchNotCovered)
     .forEach(([branchKey, node]: [string, BranchNode]) => {
       const uncoveredBranchType = getUncoveredBranch(branchKey);
-
       if (
         node.type === 'cond-expr' ||
         node.type === 'if' ||
-        node.type === 'binary-expr'
+        node.type === 'binary-expr' ||
+        node.type === 'default-arg'
       ) {
         const sourceFile = ts
           .createProgram([filePath], {
@@ -153,7 +153,8 @@ function addIgnoreCommentToBranches(
             ts.SyntaxKind.ReturnStatement,
             ts.SyntaxKind.IfStatement,
             ts.SyntaxKind.BinaryExpression,
-            ts.SyntaxKind.MethodDeclaration
+            ts.SyntaxKind.MethodDeclaration,
+            ts.SyntaxKind.Constructor
           ];
 
           let conditionalExpresionNode = uncoveredNodePath.find(statementNode =>

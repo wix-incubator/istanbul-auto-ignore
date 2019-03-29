@@ -435,5 +435,56 @@ import * as React from 'react';
 
       expect(result).toEqual(expectedCodeFile);
     });
+
+    it('default value for object inside class method argument', async () => {
+      const file = `
+        class C{
+             constructor(i = {p: ''}) {
+              console.log()
+            }
+          }
+        module.exports = function a() {new C(9)}
+      `;
+
+      const result = await runTool(tempDir, file, callOnlyA);
+      const expectedCodeFile = `
+        class C{
+             /* istanbul ignore next */constructor(i = {p: ''}) {
+              console.log()
+            }
+          }
+        module.exports = function a() {new C(9)}
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('TS - default value for object inside class method argument', async () => {
+      const file = `
+        class C{
+             constructor(i = {p: ''}) {
+              console.log()
+            }
+          }
+        export default function a() {new C({p:''})}
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true
+      );
+      const expectedCodeFile = `
+        class C{
+             /* istanbul ignore next */constructor(i = {p: ''}) {
+              console.log()
+            }
+          }
+        export default function a() {new C({p:''})}
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
   });
 });
