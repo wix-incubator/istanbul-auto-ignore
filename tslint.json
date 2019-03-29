@@ -1,6 +1,74 @@
 {
   "extends": [
-    "@wix/tslint-config-wixstores",
+    "wix-tslint-custom-rules",
+    "tslint-config-yoshi",
     "tslint-sonarts"
-  ]
+  ],
+  "rulesDirectory": [
+    "tslint-consistent-codestyle"
+  ],
+  "rules": {
+    "switch-default": false,
+    "prettier": true,
+    "member-access": true,
+    "unnecessary-constructor": true,
+    "wix-stores-custom-file-names": true,
+    "no-unnecessary-class": true,
+    "no-default-export": true,
+    "no-return-await": true,
+    "prefer-readonly": true,
+    "prefer-const": true,
+    "no-empty-interface": true,
+    "no-floating-promises": true,
+    "prefer-template": true,
+    "no-unnecessary-else": false,
+    "max-file-line-count": [
+      true,
+      1000
+    ],
+    "no-async-without-await": true,
+    "no-untyped-public-signature": [
+      true,
+      {
+        "allowedMethods": [
+          "componentWillMount",
+          "componentDidMount",
+          "componentDidUpdate",
+          "componentWillUnmount",
+          "componentDidCatch",
+          "componentWillReceiveProps",
+          "componentWillUpdate",
+          "getSnapshotBeforeUpdate",
+          "shouldComponentUpdate",
+          "render",
+          "getDerivedStateFromProps"
+        ]
+      }
+    ],
+    "no-wallaby-file-only": true,
+    "no-unused": true,
+    "no-jasmine-focus": false,
+    "no-console": [
+      true,
+      "log"
+    ],
+    "ban": [
+      true,
+      "fdescribe",
+      "fit",
+      [
+        "describe",
+        "only"
+      ],
+      [
+        "it",
+        "only"
+      ]
+    ],
+    "semicolon": [
+      true,
+      "always",
+      "strict-bound-class-methods"
+    ]
+  }
 }
