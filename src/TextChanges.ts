@@ -11,7 +11,7 @@ export class TextChanges {
   }
 
   public insertAtPosition(str: string, pos: number): void {
-    this.insertedChars.push({ str, index: pos + 1 });
+    this.insertedChars.push({ str, index: pos });
   }
 
   public insertLine(str: string, line: number): void {

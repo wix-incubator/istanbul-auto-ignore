@@ -19,6 +19,10 @@ export class TempDir {
         name: 'temp-package',
         jest: {
           collectCoverage: true,
+          coveragePathIgnorePatterns: [
+            '/node_modules/',
+            '/src/.*\\.spec\\.ts$'
+          ],
           transform: {
             '\\.(ts|tsx)$': 'ts-jest'
           },

@@ -16,15 +16,31 @@ export async function runTool(
     [`codeFile.spec.${extention}`]: testFile
   });
 
-  await runCLI(
+  await runCLI({ cache: false } as Config.Argv, [tempDir.getPath()]);
+
+  run(tempDir.getPath('coverage/coverage-final.json'));
+
+  const resultsAfterTool = await runCLI(
     {
-      silent: true,
       cache: false,
-      outputFile: '1.txt'
+      coverageThreshold: '100',
+      collectCoverage: true
     } as Config.Argv,
     [tempDir.getPath()]
   );
+  const coverageResults = resultsAfterTool.results.coverageMap.getCoverageSummary();
+  if (coverageResults.branches.pct !== 100) {
+    throw new Error('branches are not 100% covered');
+  }
+  if (coverageResults.functions.pct !== 100) {
+    throw new Error('functions are not 100% covered');
+  }
+  if (coverageResults.statements.pct !== 100) {
+    throw new Error('statements are not 100% covered');
+  }
+  if (coverageResults.lines.pct !== 100) {
+    throw new Error('lines are not 100% covered');
+  }
 
-  run(tempDir.getPath('coverage/coverage-final.json'));
   return tempDir.readFile(`codeFile.${extention}`);
 }

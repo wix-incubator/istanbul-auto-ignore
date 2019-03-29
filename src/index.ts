@@ -72,8 +72,7 @@ function findNodePathAtPosition(
       return;
     }
     try {
-      parents.push(child);
-      ts.forEachChild(child, forEachChild(parents));
+      ts.forEachChild(child, forEachChild([...parents, child]));
       if (child.getChildCount() === 0 && position <= child.pos) {
         r = parents;
       }
@@ -115,10 +114,15 @@ function addIgnoreCommentToBranches(
     .forEach(([branchKey, node]: [string, BranchNode]) => {
       const uncoveredBranchType = getUncoveredBranch(branchKey);
 
-      if (node.type === 'cond-expr') {
+      if (
+        node.type === 'cond-expr' ||
+        node.type === 'if' ||
+        node.type === 'binary-expr'
+      ) {
         const sourceFile = ts
           .createProgram([filePath], {
             noResolve: true,
+            allowJs: true,
             target: ts.ScriptTarget.Latest,
             experimentalDecorators: true,
             experimentalAsyncFunctions: true,
@@ -137,19 +141,41 @@ function addIgnoreCommentToBranches(
 
           const statementNodeKinds = [
             ts.SyntaxKind.ConditionalExpression,
-            ts.SyntaxKind.FunctionDeclaration
+            ts.SyntaxKind.FunctionDeclaration,
+            ts.SyntaxKind.VariableStatement,
+            ts.SyntaxKind.ReturnStatement,
+            ts.SyntaxKind.IfStatement,
+            ts.SyntaxKind.BinaryExpression,
+            ts.SyntaxKind.MethodDeclaration
           ];
 
-          const conditionalExpresionNode = uncoveredNodePath.find(
-            statementNode => statementNodeKinds.includes(statementNode.kind)
+          let conditionalExpresionNode = uncoveredNodePath.find(statementNode =>
+            statementNodeKinds.includes(statementNode.kind)
           );
+
+          if (
+            conditionalExpresionNode &&
+            conditionalExpresionNode.kind === ts.SyntaxKind.BinaryExpression &&
+            uncoveredBranchType === 'else'
+          ) {
+            conditionalExpresionNode = (conditionalExpresionNode as ts.BinaryExpression)
+              .right;
+          }
+
+          let comment = createComment('next');
 
           /* istanbul ignore else: in the future we won't need this protection */
           if (conditionalExpresionNode) {
-            textChanges.insertAtPosition(
-              createComment('next'),
-              conditionalExpresionNode.pos
-            );
+            let notSpaceIndex = conditionalExpresionNode.pos;
+            while (/\s/.test(fileContent[notSpaceIndex])) {
+              notSpaceIndex++;
+            }
+
+            if (conditionalExpresionNode.kind === ts.SyntaxKind.IfStatement) {
+              comment = createComment(uncoveredBranchType);
+            }
+
+            textChanges.insertAtPosition(comment, notSpaceIndex);
           } else {
             textChanges.insert(
               createComment('next'),

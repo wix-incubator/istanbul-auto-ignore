@@ -37,13 +37,11 @@ describe('Branches', () => {
       const result = await runTool(tempDir, file, callOnlyA);
       const expectedCodeFile = `
             module.exports = function a() {
-/* istanbul ignore else */
-                if (true) {
+                /* istanbul ignore else */if (true) {
                 
                 }
             };
         `;
-
       expect(result).toEqual(expectedCodeFile);
     });
 
@@ -59,8 +57,7 @@ describe('Branches', () => {
       const result = await runTool(tempDir, file, callOnlyA);
       const expectedCodeFile = `
             module.exports = function a() {
-/* istanbul ignore if */
-                if (false) {
+                /* istanbul ignore if */if (false) {
                 
                 }
             };
@@ -179,7 +176,7 @@ describe('Branches', () => {
       );
       const expectedCodeFile = `
       export default function a() {
-            return /* istanbul ignore next */        true    ? 343241 : 4324324322
+            return         /* istanbul ignore next */true    ? 343241 : 4324324322
             };
       `;
 
@@ -283,6 +280,37 @@ import * as React from 'react';
       expect(result).toEqual(expectedCodeFile);
     });
 
+    it('TS - default inside variable', async () => {
+      const file = `
+        export default () => {
+          b();
+        };
+        
+        function b() {
+          1;const {a = ''} = {};
+        }
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+        export default () => {
+          b();
+        };
+        
+        function b() {
+          1;/* istanbul ignore next */const {a = ''} = {};
+        }
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
     it('default arg', async () => {
       const file = `
         export default function a({
@@ -298,9 +326,92 @@ import * as React from 'react';
         true
       );
       const expectedCodeFile = `
-/* istanbul ignore next */        export default function a({
+        /* istanbul ignore next */export default function a({
           cssPath
         }: {cssPath?: string[]} = {}) {}
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('default assignments', async () => {
+      const file = `
+        export default function a() {
+         const a = true || 1;}
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+        export default function a() {
+         const a = true || /* istanbul ignore next */1;}
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('default value for function argument', async () => {
+      const file = `
+        export default function a() {
+          function b(c:string, b:string='') {
+          }
+          b('c','s');
+        }
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+        export default function a() {
+          /* istanbul ignore next */function b(c:string, b:string='') {
+          }
+          b('c','s');
+        }
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('default value for class method argument', async () => {
+      const file = `
+      export class C{
+            public b(c:string, b:string=''): void {
+            console.log()
+            }
+          }
+        export default function a() {
+          
+          new C().b('c','s');
+        }
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+      export class C{
+            /* istanbul ignore next */public b(c:string, b:string=''): void {
+            console.log()
+            }
+          }
+        export default function a() {
+          
+          new C().b('c','s');
+        }
       `;
 
       expect(result).toEqual(expectedCodeFile);

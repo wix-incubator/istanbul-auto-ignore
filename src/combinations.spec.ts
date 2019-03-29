@@ -44,8 +44,7 @@ describe('Combinations', () => {
                 function b() {
 
                 }
-/* istanbul ignore else */
-                if (true) {
+                /* istanbul ignore else */if (true) {
                 
                 }
             };
