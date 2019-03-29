@@ -172,6 +172,22 @@ function addIgnoreCommentToBranches(
               .right;
           }
 
+          const index = uncoveredNodePath.findIndex(
+            a => a === conditionalExpresionNode
+          );
+          const parent = index === -1 ? null : uncoveredNodePath[index + 1];
+
+          if (
+            conditionalExpresionNode.kind ===
+              ts.SyntaxKind.ConditionalExpression &&
+            parent &&
+            parent.kind === ts.SyntaxKind.VariableDeclaration
+          ) {
+            conditionalExpresionNode = uncoveredNodePath.find((s, i) => {
+              return i > index && s.kind === ts.SyntaxKind.VariableStatement;
+            });
+          }
+
           let comment = createComment('next');
 
           /* istanbul ignore else: in the future we won't need this protection */
@@ -181,7 +197,10 @@ function addIgnoreCommentToBranches(
               notSpaceIndex++;
             }
 
-            if (conditionalExpresionNode.kind === ts.SyntaxKind.IfStatement) {
+            if (
+              conditionalExpresionNode.kind === ts.SyntaxKind.IfStatement &&
+              (!parent || parent.kind !== ts.SyntaxKind.IfStatement)
+            ) {
               comment = createComment(uncoveredBranchType);
             }
 

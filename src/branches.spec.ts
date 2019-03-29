@@ -299,6 +299,29 @@ import * as React from 'react';
       expect(result).toEqual(expectedCodeFile);
     });
 
+    it('TS - when ternary if with binary expression inside const', async () => {
+      const file = `
+      export default () => {
+        const c = true ? 1 + 2 : undefined;
+      }
+      `;
+
+      const result = await runTool(
+        tempDir,
+        file,
+        `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`,
+        true,
+        true
+      );
+      const expectedCodeFile = `
+      export default () => {
+        /* istanbul ignore next */const c = true ? 1 + 2 : undefined;
+      }
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
     it('TS - default inside variable', async () => {
       const file = `
         export default () => {
@@ -482,6 +505,33 @@ import * as React from 'react';
             }
           }
         export default function a() {new C({p:''})}
+      `;
+
+      expect(result).toEqual(expectedCodeFile);
+    });
+
+    it('else if', async () => {
+      const file = `
+        module.exports = function a() {
+          if(true){
+            if(false) {
+            } else if (true) {  
+            } else {
+            }
+          }
+        }
+      `;
+
+      const result = await runTool(tempDir, file, callOnlyA);
+      const expectedCodeFile = `
+        module.exports = function a() {
+          /* istanbul ignore else */if(true){
+            /* istanbul ignore if */if(false) {
+            } else /* istanbul ignore next */if (true) {  
+            } else {
+            }
+          }
+        }
       `;
 
       expect(result).toEqual(expectedCodeFile);
