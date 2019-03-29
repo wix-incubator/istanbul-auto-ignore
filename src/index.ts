@@ -5,7 +5,7 @@ import {
   CoverageFinalJSON,
   FunctionNode
 } from './types';
-import { TextChanges } from './TextChanges';
+import {TextChanges} from './TextChanges';
 import ts from 'typescript';
 
 function createComment(type: CommentType) {
@@ -28,7 +28,7 @@ export function run(coveragePath) {
         fileContent
       };
     })
-    .map(({ textChanges, filePath, fileContent }) => {
+    .map(({textChanges, filePath, fileContent}) => {
       JSON.stringify(coverage[filePath].branchMap[0], null, 2);
       addIgnoreCommentToFunctions(
         textChanges,
@@ -43,9 +43,9 @@ export function run(coveragePath) {
         filePath,
         fileContent
       );
-      return { textChanges, filePath };
+      return {textChanges, filePath};
     })
-    .forEach(({ textChanges, filePath }) => {
+    .forEach(({textChanges, filePath}) => {
       fs.writeFileSync(filePath, textChanges.getText(), 'utf8');
     });
 }
@@ -66,6 +66,7 @@ function findNodePathAtPosition(
   sourceFile: ts.SourceFile,
   position: number
 ): ts.Node[] {
+  position//?
   let r;
   const forEachChild = parents => (child: ts.Node) => {
     if (r) {
@@ -97,17 +98,16 @@ function addIgnoreCommentToBranches(
   fileContent
 ) {
   const isBranchNotCovered = ([branchKey]: [string, BranchNode]): boolean => {
-    const [ifBranch, elseBranch] = b[branchKey];
-    return (
-      (ifBranch === 0 || elseBranch === 0) &&
-      !(ifBranch === 0 && elseBranch === 0)
-    );
+    const branches = b[branchKey];
+    return branches.some(count => count === 0);
   };
 
   const getUncoveredBranch = (branchKey: string): 'if' | 'else' => {
     const [ifBranch] = b[branchKey];
     return ifBranch === 0 ? 'if' : 'else';
   };
+
+  branchesLocations//?
 
   Object.entries(branchesLocations)
     .filter(isBranchNotCovered)
@@ -117,7 +117,8 @@ function addIgnoreCommentToBranches(
         node.type === 'cond-expr' ||
         node.type === 'if' ||
         node.type === 'binary-expr' ||
-        node.type === 'default-arg'
+        node.type === 'default-arg' ||
+        node.type === 'switch'
       ) {
         const sourceFile = ts
           .createProgram([filePath], {
@@ -132,86 +133,96 @@ function addIgnoreCommentToBranches(
           .getSourceFile(filePath);
 
         if (sourceFile) {
-          const { line, column } = node.loc.start;
-          const nodePosition = lineAndColToPos(fileContent, line, column);
+          (node.type === 'cond-expr' ? [node.loc] : node.locations)
+            .filter((cover, index) => b[branchKey][index] === 0)
+            .forEach(uncoveredLocation => {
 
-          const uncoveredNodePath =
-            findNodePathAtPosition(sourceFile, nodePosition) || [];
-          uncoveredNodePath.reverse();
+              const {line, column} = uncoveredLocation.start;
+              const nodePosition = lineAndColToPos(fileContent, line, column);
 
-          if (
-            node.type !== 'binary-expr' &&
-            uncoveredNodePath[0].kind === ts.SyntaxKind.BinaryExpression
-          ) {
-            uncoveredNodePath.shift();
-          }
 
-          const statementNodeKinds = [
-            ts.SyntaxKind.ConditionalExpression,
-            ts.SyntaxKind.FunctionDeclaration,
-            ts.SyntaxKind.VariableStatement,
-            ts.SyntaxKind.ReturnStatement,
-            ts.SyntaxKind.IfStatement,
-            ts.SyntaxKind.BinaryExpression,
-            ts.SyntaxKind.MethodDeclaration,
-            ts.SyntaxKind.Constructor
-          ];
+              const uncoveredNodePath = findNodePathAtPosition(sourceFile, nodePosition) || [];
+              uncoveredNodePath.reverse();
 
-          let conditionalExpresionNode = uncoveredNodePath.find(statementNode =>
-            statementNodeKinds.includes(statementNode.kind)
-          );
+              if (
+                node.type !== 'binary-expr' &&
+                uncoveredNodePath[0].kind === ts.SyntaxKind.BinaryExpression
+              ) {
+                uncoveredNodePath.shift();
+              }
 
-          if (
-            conditionalExpresionNode &&
-            conditionalExpresionNode.kind === ts.SyntaxKind.BinaryExpression &&
-            uncoveredBranchType === 'else' &&
-            (conditionalExpresionNode as ts.BinaryExpression).operatorToken
-              .kind === ts.SyntaxKind.BarBarToken
-          ) {
-            conditionalExpresionNode = (conditionalExpresionNode as ts.BinaryExpression)
-              .right;
-          }
+              const statementNodeKinds = [
+                ts.SyntaxKind.ConditionalExpression,
+                ts.SyntaxKind.FunctionDeclaration,
+                ts.SyntaxKind.VariableStatement,
+                ts.SyntaxKind.ReturnStatement,
+                ts.SyntaxKind.IfStatement,
+                ts.SyntaxKind.BinaryExpression,
+                ts.SyntaxKind.MethodDeclaration,
+                ts.SyntaxKind.Constructor,
+                ts.SyntaxKind.CaseClause,
+                ts.SyntaxKind.DefaultClause,
+              ];
 
-          const index = uncoveredNodePath.findIndex(
-            a => a === conditionalExpresionNode
-          );
-          const parent = index === -1 ? null : uncoveredNodePath[index + 1];
 
-          if (
-            conditionalExpresionNode.kind ===
-              ts.SyntaxKind.ConditionalExpression &&
-            parent &&
-            parent.kind === ts.SyntaxKind.VariableDeclaration
-          ) {
-            conditionalExpresionNode = uncoveredNodePath.find((s, i) => {
-              return i > index && s.kind === ts.SyntaxKind.VariableStatement;
-            });
-          }
+              uncoveredNodePath.map(k => ts.SyntaxKind[k.kind])//?
+              let conditionalExpresionNode = uncoveredNodePath.find(statementNode =>
+                statementNodeKinds.includes(statementNode.kind)
+              );
 
-          let comment = createComment('next');
+              if (
+                conditionalExpresionNode &&
+                conditionalExpresionNode.kind === ts.SyntaxKind.BinaryExpression &&
+                uncoveredBranchType === 'else' &&
+                (conditionalExpresionNode as ts.BinaryExpression).operatorToken
+                  .kind === ts.SyntaxKind.BarBarToken
+              ) {
+                conditionalExpresionNode = (conditionalExpresionNode as ts.BinaryExpression)
+                  .right;
+              }
 
-          /* istanbul ignore else: in the future we won't need this protection */
-          if (conditionalExpresionNode) {
-            let notSpaceIndex = conditionalExpresionNode.pos;
-            while (/\s/.test(fileContent[notSpaceIndex])) {
-              notSpaceIndex++;
-            }
+              const index = uncoveredNodePath.findIndex(
+                a => a === conditionalExpresionNode
+              );
+              const parent = index === -1 ? null : uncoveredNodePath[index + 1];
 
-            if (
-              conditionalExpresionNode.kind === ts.SyntaxKind.IfStatement &&
-              (!parent || parent.kind !== ts.SyntaxKind.IfStatement)
-            ) {
-              comment = createComment(uncoveredBranchType);
-            }
+              if (
+                conditionalExpresionNode && conditionalExpresionNode.kind ===
+                ts.SyntaxKind.ConditionalExpression &&
+                parent &&
+                parent.kind === ts.SyntaxKind.VariableDeclaration
+              ) {
+                conditionalExpresionNode = uncoveredNodePath.find((s, i) => {
+                  return i > index && s.kind === ts.SyntaxKind.VariableStatement;
+                });
+              }
 
-            textChanges.insertAtPosition(comment, notSpaceIndex);
-          } else {
-            textChanges.insert(
-              createComment('next'),
-              node.loc.start.line,
-              node.loc.start.column
-            );
-          }
+              let comment = createComment('next');
+
+              /* istanbul ignore else: in the future we won't need this protection */
+              if (conditionalExpresionNode) {
+                let notSpaceIndex = conditionalExpresionNode.pos;
+                while (/\s/.test(fileContent[notSpaceIndex])) {
+                  notSpaceIndex++;
+                }
+
+                if (
+                  conditionalExpresionNode.kind === ts.SyntaxKind.IfStatement &&
+                  (!parent || parent.kind !== ts.SyntaxKind.IfStatement)
+                ) {
+                  comment = createComment(uncoveredBranchType);
+                }
+
+                textChanges.insertAtPosition(comment, notSpaceIndex);
+              } else {
+                textChanges.insert(
+                  createComment('next'),
+                  node.loc.start.line,
+                  node.loc.start.column
+                );
+              }
+            })
+
         } else {
           textChanges.insert(
             createComment('next'),
@@ -236,7 +247,7 @@ function addIgnoreCommentToFunctions(
   const isFunctionNotCovered = ([functionKey]: [
     string,
     FunctionNode
-  ]): boolean => {
+    ]): boolean => {
     return f[functionKey] === 0;
   };
 

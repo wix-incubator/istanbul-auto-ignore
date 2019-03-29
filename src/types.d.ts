@@ -11,6 +11,7 @@ interface Location {
 export interface Node {
   decl: Location;
   loc: Location;
+  locations: Array<Location>;
 }
 
 interface BranchNode extends Node {
