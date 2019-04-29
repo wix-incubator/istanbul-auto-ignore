@@ -21,9 +21,8 @@ describe('Branches', () => {
                     expect(true).toBe(true)
                 });
             });
+  
         `;
-
-  const callOnlyATS = `import A from './codeFile'; describe('', () => { it('', () => {A()}) })`;
 
   describe('if', () => {
     it('when only if is covered', async () => {
@@ -262,8 +261,7 @@ import * as React from 'react';
       expect(result).toEqual(expectedCodeFile);
     });
 
-    //file.only
-    fit('TS - when ternary if with function call inside', async () => {
+    it('TS - when ternary if with function call inside', async () => {
       const file = `
       export default () => 
       console.log(console.log(console.log(1)), true ? {} : {})`;
@@ -532,60 +530,6 @@ import * as React from 'react';
             } else /* istanbul ignore next */if (true) {  
             } else {
             }
-          }
-        }
-      `;
-
-      expect(result).toEqual(expectedCodeFile);
-    });
-
-    //file.only
-
-    it('switch case', async () => {
-      const file = `
-        export default function a() {
-          switch('1') {
-            case '1': console.log('1'); break;
-            case '1': console.log('1'); break;
-            default: console.log('default');
-          }
-        }
-      `;
-
-      const result = await runTool(tempDir, file, callOnlyATS, true, true);
-      const expectedCodeFile = `
-        export default function a() {
-          switch('1') {
-            case '1': console.log('1'); break;
-            /* istanbul ignore next */case '1': console.log('1'); break;
-            /* istanbul ignore next */default: console.log('default');
-          }
-        }
-      `;
-
-      expect(result).toEqual(expectedCodeFile);
-    });
-
-    it('switch case: default', async () => {
-      const file = `
-        export default function a() {
-          const v: any = '2'
-          switch(v) {
-            case '0': console.log('0'); break;
-            case '1': console.log('1'); break;
-            default: console.log('default');
-          }
-        }
-      `;
-
-      const result = await runTool(tempDir, file, callOnlyATS, true);
-      const expectedCodeFile = `
-        export default function a() {
-          const v: any = '2'
-          switch(v) {
-            /* istanbul ignore next */case '0': console.log('0'); break;
-            /* istanbul ignore next */case '1': console.log('1'); break;
-            default: console.log('default');
           }
         }
       `;
