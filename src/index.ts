@@ -113,6 +113,7 @@ function addIgnoreCommentToBranches(
     .filter(isBranchNotCovered)
     .forEach(([branchKey, node]: [string, BranchNode]) => {
       const uncoveredBranchType = getUncoveredBranch(branchKey);
+      // istanbul ignore else
       if (
         node.type === 'cond-expr' ||
         node.type === 'if' ||
@@ -131,10 +132,12 @@ function addIgnoreCommentToBranches(
           })
           .getSourceFile(filePath);
 
+        // istanbul ignore else
         if (sourceFile) {
           const { line, column } = node.loc.start;
           const nodePosition = lineAndColToPos(fileContent, line, column);
 
+          /* istanbul ignore next */
           const uncoveredNodePath =
             findNodePathAtPosition(sourceFile, nodePosition) || [];
           uncoveredNodePath.reverse();
