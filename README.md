@@ -6,3 +6,7 @@
 * Sometimes a code can't be tested for various reasons, but setting `coverageThreshold` to less than 100 will make newly untested code harder to find.
 * Therefore we find it best to use `coverageThreshold` set to 100, and add `//istanbul ignore` (coverage ignore) comments instead of setting `coverageThreshold` to anything less.
 * `istanbul-auto-ignore` helps an existing project with `coverageThreshold < 100` to get to 100 by adding `//istanbul ignore` comments next to uncovered code.
+
+## How to use
+* Make sure your project have a `coverage/coverage-final.json` file. In order to generate one run `jest` with `collectCoverage` set to `true` and `coverageReporters` set to `["json"]`.
+* run `npx istanbul-ignore-legacy`
