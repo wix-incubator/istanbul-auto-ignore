@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { run } from './index';
 import path from 'path';
 
