@@ -1,12 +1,14 @@
 {
   "name": "istanbul-ignore-legacy",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
   "bin": {
     "istanbul-ignore-legacy": "dist/cli.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "pretest": "npm run build",
     "test": "jest",
@@ -48,6 +50,7 @@
     "tmp": "0.0.33",
     "ts-jest": "^24.0.0",
     "ts-node": "^8.0.3",
+    "tslib": "^1.10.0",
     "typescript": "^3.3.4000",
     "uuid": "^3.3.2"
   },
