@@ -1,12 +1,13 @@
 {
   "name": "istanbul-ignore-legacy",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "bin": {
     "istanbul-ignore-legacy": "dist/cli.js"
   },
   "scripts": {
+    "pretest": "npm run build",
     "test": "jest",
     "build": "rm -rf dist && tsc",
     "lint": "tslint -c tslint.json src/**/*.ts -p tsconfig.json",
