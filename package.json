@@ -6,6 +6,7 @@
   "bin": {
     "istanbul-ignore-legacy": "dist/cli.js"
   },
+  "files": ["dist"],
   "scripts": {
     "pretest": "npm run build",
     "test": "jest",
